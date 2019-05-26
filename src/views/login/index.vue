@@ -37,13 +37,15 @@
 </template>
 
 <script>
-import { isvalidUsername } from '@/utils/validate'
+// import { isvalidUsername } from '@/utils/validate'
+import service from '../../utils/request'
+import { setToken } from "../../utils/auth";
 
 export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
+      if (value.length < 1) {
         callback(new Error('请输入正确的用户名'))
       } else {
         callback()
@@ -57,6 +59,7 @@ export default {
       }
     }
     return {
+      loginURL: 'http://192.168.217.128:9528/login',
       loginForm: {
         username: 'admin',
         password: 'admin'
@@ -90,12 +93,36 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('Login', this.loginForm).then(() => {
-            this.loading = false
-            this.$router.push({ path: this.redirect || '/' })
-          }).catch(() => {
-            this.loading = false
+          service({
+            method: 'post',
+            url: this.loginURL,
+            data: this.loginForm
           })
+            .then((result) => {
+              console.log('login result:', result)
+              if(result.status ===  1) {
+                setToken(result.data.Token)
+                this.loading = false
+                this.$router.push({ path: this.redirect || '/' })
+                // this.$store.dispatch('Login', this.loginForm).then(() => {
+                //   this.loading = false
+                //   this.$router.push({ path: this.redirect || '/' })
+                // }).catch(() => {
+                //   this.loading = false
+                // })
+              } else {
+                // this.$message.error(result.message)
+                this.loading = false
+              }
+            })
+            .catch((error) => {
+              this.loading = false
+              let res = error.response
+              console.log(res)
+              this.$message.error(res.data.message)
+              console.error(error)
+          })
+
         } else {
           console.log('error submit!!')
           return false

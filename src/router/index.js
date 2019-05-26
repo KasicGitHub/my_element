@@ -74,6 +74,32 @@ export const constantRouterMap = [
   },
 
   {
+    path: '/VCharts',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'VCharts',
+        component: () => import('@/views/vcharts'),
+        meta: { title: 'VCharts', icon: 'list' }
+      }
+    ]
+  },
+
+  {
+    path: '/fileserver',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'fileserver',
+        component: () => import('@/views/fileserver/file'),
+        meta: { title: 'fileserver', icon: 'file' }
+      }
+    ]
+  },
+
+  {
     path: '/nested',
     component: Layout,
     redirect: '/nested/menu1',
